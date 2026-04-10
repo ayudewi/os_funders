@@ -74,7 +74,7 @@ plot_data <- os |>
         ) |>
         mutate(
                 source = recode(source,
-                                g = "Grants",
+                                g = "Proposals",
                                 s = "Publications"),
                 practice = str_replace_all(practice, "_", " "),
                 practice = str_to_title(practice),
@@ -90,7 +90,7 @@ bar_os <- ggplot(plot_data,
         geom_text(aes(label = count),
                   position = position_dodge(width = 0.9),
                   vjust = -0.3,size = 3) +
-        labs(title = "Open Science Practices: Grants vs Publications",
+        labs(title = "Open Science Practices: Grant proposals vs Publications",
              x = "Open Science Practice",
              y = "Cumulative",
              fill = "Source") +
@@ -106,7 +106,7 @@ bar_os <- ggplot(plot_data,
 bar_os
 
 ggsave("bar_os.png", plot = bar_os, 
-       width = 13, height = 6, dpi = 300, bg = "white")
+       width = 13, height = 6, dpi = 500, bg = "white")
 
 # Matrix transition -------------------------------------------------------
 
@@ -180,13 +180,13 @@ m <- ggplot(transition_summary,
                 axis.text.x = element_text(size = 12),
                 axis.title.x = element_text(size = 14),
                 legend.title = element_text(size = 12),
-                legend.text = element_text(size = 11)
+                legend.text = element_text(size = 12)
         )
 
 m
 
 ggsave("transition_matrix.png", plot = m, 
-       width = 12, height = 6, dpi = 300, bg = "white")
+       width = 12, height = 6, dpi = 500, bg = "white")
 
 
 # Comparison of consistent practices --------------------------------------
@@ -231,7 +231,7 @@ table_pub <- agreement_table |>
 table_gt <- table_pub |>
         gt() |>
         tab_header(
-                title = "Alignment of Open Science Practices: Grants vs Publications"
+                title = "Alignment of Open Science Practices: Proposals vs Publications"
         ) |>
         cols_align(
                 align = "center",
