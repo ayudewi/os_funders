@@ -5,7 +5,7 @@
 ############################################################
 
 # To reproduce, set your working directory first!
-setwd("...")
+setwd("C:/Users/P018013/OneDrive - Amsterdam UMC/Funder study R/funders extension")
 
 # Library
 library(readxl)
@@ -49,6 +49,146 @@ os <- os |>
 
 os <- os |>
         rename_with(~ gsub(" ", "_", .x)) 
+
+
+# Recoding field based on frascati ----------------------------------------
+
+os <- os |>
+        mutate(
+                frascati_code = case_when(
+                        field %in% c(
+                                "medicine", "biomedicine", "epidemiology",
+                                "public health", "immunology"
+                        ) ~ 3,
+                        
+                        field %in% c(
+                                "bioengineering", "biotechnology"
+                        ) ~ 2,
+                        
+                        field %in% c(
+                                "animal science", "forest science"
+                        ) ~ 4,
+                        
+                        field %in% c(
+                                "psychology", "urban study",
+                                "anthropology", "economics"
+                        ) ~ 5,
+                        
+                        field == "geography" ~ 1,
+                        
+                        TRUE ~ 1
+                ),
+                
+                frascati_field = recode(
+                        as.character(frascati_code),
+                        `1` = "Natural sciences",
+                        `2` = "Engineering and technology",
+                        `3` = "Medical and health sciences",
+                        `4` = "Agricultural and veterinary sciences",
+                        `5` = "Social sciences"
+                )
+        )
+
+os |>
+        count(frascati_code, frascati_field) |>
+        arrange(frascati_code)
+
+tg_field <- os |>
+        tbl_summary(
+                include = frascati_field,
+                label = list(frascati_field ~ "Research Field (Frascati standardised category)")
+        )
+
+tg_field
+
+gt_field <- as_gt(tg_field)
+gtsave(gt_field, "tg_field.png")
+
+
+# Funders location --------------------------------------------------------
+
+# Count publications by funding source
+funding_data <- os |>
+        filter(!is.na(country)) %>%
+        count(country, name = "n") %>%
+        mutate(
+                funding_source = reorder(country, n)
+        )
+
+# Horizontal dot plot
+tg_source <- ggplot(funding_data,
+       aes(x = n, y = funding_source)) +
+        geom_segment(
+                aes(x = 0, xend = n,
+                    yend = funding_source),
+                colour = "grey75",
+                linewidth = 0.6
+        ) +
+        geom_point(size = 3) +
+        labs(
+                x = "Number of matched pair grant proposals-publications",
+                y = "Funding source (country/region)"
+        ) +
+        scale_x_continuous(
+                breaks = seq(0, max(funding_data$n) + 5, by = 10),
+                expand = expansion(mult = c(0, 0.05))
+        ) +
+        theme_classic(base_size = 12) +
+        theme(
+                axis.text = element_text(colour = "black"),
+                axis.title = element_text(colour = "black")
+        )
+
+tg_source
+
+ggsave(
+        filename = "tg_location.png",
+        plot = tg_source,
+        width = 8,
+        height = 6,
+        dpi = 300
+)
+
+
+# Funded years ------------------------------------------------------------
+
+# Count funded grant proposals per year
+year_data <- os |>
+        filter(!is.na(year)) |>
+        count(year, name = "n") |>
+        arrange(year)
+
+# A lollipop chart
+p_year <- ggplot(year_data, aes(x = factor(year), y = n)) +
+        geom_segment(
+                aes(xend = factor(year), y = 0, yend = n),
+                colour = "grey65",
+                linewidth = 0.7
+        ) +
+        geom_point(
+                size = 3.5,
+                colour = "#2878A5"
+        ) +
+        labs(
+                x = "Year of grant funding",
+                y = "Number of funded grant proposals"
+        ) +
+        theme_classic(base_size = 12) +
+        theme(
+                axis.text = element_text(colour = "black"),
+                axis.title = element_text(colour = "black")
+        )
+
+p_year
+
+ggsave(
+        filename = "tg_year.png",
+        plot = p_year,
+        width = 8,
+        height = 5,
+        units = "in",
+        dpi = 300
+)
 
 # Comparison Open science in the grants vs publications -------------------
 
