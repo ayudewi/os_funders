@@ -5,7 +5,7 @@
 ############################################################
 
 # To reproduce, set your working directory first!
-setwd(".............................")
+setwd("C:/Users/P018013/OneDrive - Amsterdam UMC/Funder study R/funders extension")
 
 # Library
 library(readxl)
@@ -109,8 +109,8 @@ gtsave(gt_field, "tg_field.png")
 
 # Count publications by funding source
 funding_data <- os |>
-        filter(!is.na(country)) %>%
-        count(country, name = "n") %>%
+        filter(!is.na(country)) |>
+        count(country, name = "n") |>
         mutate(
                 funding_source = reorder(country, n)
         )
