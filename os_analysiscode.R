@@ -5,7 +5,7 @@
 ############################################################
 
 # To reproduce, set your working directory first!
-setwd("C:/Users/P018013/OneDrive - Amsterdam UMC/Funder study R/funders extension")
+setwd(".......................")
 
 # Library
 library(readxl)
